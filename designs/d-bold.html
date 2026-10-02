@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mehak Jan — Frontend Developer & QA Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+<script>document.documentElement.classList.add('m')</script>
+<style>
+  :root {
+    --bg: #fffbf0;
+    --ink: #111111;
+    --muted: #3f3f46;
+    --yellow: #ffd23f;
+    --pink: #ff8fab;
+    --blue: #74b9ff;
+    --green: #7ee2a8;
+    --lilac: #c4b5fd;
+    --line: 3px solid var(--ink);
+    --shadow: 6px 6px 0 var(--ink);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font: 17px/1.6 'Space Grotesk', system-ui, sans-serif; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .wrap { width: min(1160px, 100% - 32px); margin-inline: auto; }
+  .m [data-reveal] { opacity: 0; }
+
+  .box { border: var(--line); box-shadow: var(--shadow); border-radius: 16px; background: #fff; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border: var(--line); border-radius: 12px; font-weight: 700; box-shadow: 4px 4px 0 var(--ink); transition: transform .15s, box-shadow .15s; }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn-y { background: var(--yellow); } .btn-w { background: #fff; }
+
+  header { padding: 16px 0; }
+  .nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 10px 10px 20px; }
+  .logo { font-weight: 700; font-size: 20px; }
+  .nav ul { display: flex; gap: 22px; list-style: none; font-weight: 500; }
+  .nav ul a:hover { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 5px; }
+  @media (max-width: 760px) { .nav ul { display: none; } }
+
+  .hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; padding: 56px 0 72px; align-items: center; }
+  .sticker { display: inline-block; background: var(--green); border: var(--line); border-radius: 999px; padding: 6px 16px; font-weight: 700; font-size: 14px; transform: rotate(-2deg); }
+  h1 { font-size: clamp(48px, 7vw, 92px); line-height: .95; letter-spacing: -.04em; font-weight: 700; margin: 24px 0; }
+  h1 mark { background: var(--pink); padding: 0 .12em; border-radius: 10px; color: inherit; border: var(--line); display: inline-block; transform: rotate(-1.5deg); }
+  .lede { font-size: 20px; color: var(--muted); max-width: 560px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+  .id { padding: 28px; background: var(--yellow); position: relative; }
+  .id .face { width: 96px; height: 96px; border: var(--line); border-radius: 50%; background: var(--blue); display: grid; place-items: center; font-size: 34px; font-weight: 700; margin-bottom: 18px; }
+  .id dl { display: grid; gap: 10px; }
+  .id dt { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+  .id dd { font-size: 18px; font-weight: 500; }
+  .id .stamp { position: absolute; top: 24px; right: 24px; background: #fff; border: var(--line); border-radius: 10px; padding: 4px 10px; font-weight: 700; font-size: 13px; transform: rotate(6deg); }
+  @media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding-top: 32px; } }
+
+  .ticker { border-block: var(--line); background: var(--ink); color: var(--bg); overflow: hidden; padding: 14px 0; }
+  .ticker div { display: flex; gap: 40px; width: max-content; animation: run 28s linear infinite; font-weight: 700; font-size: 22px; white-space: nowrap; }
+  .ticker span::after { content: "✦"; margin-left: 40px; color: var(--yellow); }
+  @keyframes run { to { transform: translateX(-50%); } }
+
+  section { padding: 88px 0; }
+  h2 { font-size: clamp(38px, 6vw, 64px); letter-spacing: -.035em; line-height: 1; margin-bottom: 40px; }
+  h2 small { display: block; font-size: 16px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
+
+  .about { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .about .box { padding: 26px; }
+  .about .big { grid-column: span 2; background: var(--lilac); font-size: clamp(20px, 2.4vw, 26px); line-height: 1.4; font-weight: 500; }
+  .about .stat { background: var(--green); display: flex; flex-direction: column; justify-content: center; }
+  .about .stat b { font-size: 80px; line-height: 1; letter-spacing: -.04em; }
+  @media (max-width: 860px) { .about { grid-template-columns: 1fr; } .about .big { grid-column: auto; } }
+
+  .skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .skills .box { padding: 26px; }
+  .skills h3 { font-size: 26px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .skills h3 i { width: 18px; height: 18px; border: var(--line); border-radius: 50%; display: inline-block; }
+  .skills ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .skills li { border: 2px solid var(--ink); border-radius: 999px; padding: 4px 14px; font-size: 15px; font-weight: 500; background: var(--bg); }
+  @media (max-width: 860px) { .skills { grid-template-columns: 1fr; } }
+
+  .jobs { display: grid; gap: 28px; }
+  .job { padding: 30px; display: grid; grid-template-columns: 1fr 2fr; gap: 32px; }
+  .job:nth-child(1) { background: var(--blue); }
+  .job:nth-child(2) { background: var(--pink); }
+  .job .when { font-weight: 700; background: #fff; border: var(--line); border-radius: 10px; display: inline-block; padding: 4px 12px; font-size: 14px; }
+  .job h3 { font-size: 30px; line-height: 1.1; letter-spacing: -.02em; margin: 14px 0 6px; }
+  .job .org { font-weight: 500; }
+  .job ul { list-style: none; display: grid; gap: 10px; }
+  .job li { background: rgba(255,255,255,.6); border: 2px solid var(--ink); border-radius: 10px; padding: 10px 14px; font-size: 16px; }
+  .job a.ext { display: inline-block; margin-top: 14px; font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  @media (max-width: 860px) { .job { grid-template-columns: 1fr; gap: 18px; } }
+
+  .edu { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .edu .box { padding: 26px; }
+  .edu .box:nth-child(1) { background: var(--yellow); } .edu .box:nth-child(2) { background: var(--green); }
+  .edu h3 { font-size: 24px; letter-spacing: -.02em; margin: 10px 0 6px; }
+  .edu p { color: var(--muted); }
+  .edu .yr { font-weight: 700; font-size: 14px; background: #fff; border: 2px solid var(--ink); border-radius: 8px; padding: 2px 10px; display: inline-block; }
+  @media (max-width: 760px) { .edu { grid-template-columns: 1fr; } }
+
+  .contact { padding: 64px 32px; text-align: center; background: var(--ink); color: var(--bg); border-radius: 24px; }
+  .contact h2 { margin-bottom: 16px; }
+  .contact h2 mark { background: var(--yellow); color: var(--ink); padding: 0 .15em; border-radius: 10px; }
+  .contact p { max-width: 520px; margin: 0 auto 32px; opacity: .85; }
+  .contact .cta { justify-content: center; }
+  .contact .btn { border-color: var(--bg); box-shadow: 4px 4px 0 var(--yellow); color: var(--ink); }
+  footer { padding: 32px 0 48px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-weight: 500; }
+  @media (prefers-reduced-motion: reduce) { .ticker div { animation: none; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <nav class="nav box" aria-label="Main">
+    <a class="logo" href="#top">Mehak Jan</a>
+    <ul><li><a href="#about">About</a></li><li><a href="#skills">Skills</a></li><li><a href="#experience">Work</a></li><li><a href="#education">Education</a></li></ul>
+    <a class="btn btn-y" href="#contact">Say hi</a>
+  </nav>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div>
+      <span class="sticker" data-reveal>Open to opportunities</span>
+      <h1 data-reveal>I build it.<br />I <mark>break</mark> it.<br />Then I ship it.</h1>
+      <p class="lede" data-reveal>I'm Mehak — a Frontend Developer & QA Engineer from Srinagar with 3+ years of building Angular and React apps, and testing them so users never meet the bugs.</p>
+      <div class="cta" data-reveal><a class="btn btn-y" href="#experience">See my work →</a><a class="btn btn-w" href="mailto:Nabimehak47@gmail.com">Email me</a></div>
+    </div>
+    <div class="box id" data-reveal data-float>
+      <span class="stamp">QA ✓</span>
+      <div class="face" aria-hidden="true">MJ</div>
+      <dl>
+        <div><dt>Role</dt><dd>Frontend Dev + QA Engineer</dd></div>
+        <div><dt>Experience</dt><dd>3+ years · 2 companies</dd></div>
+        <div><dt>Based in</dt><dd>Srinagar, India</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="ticker" aria-hidden="true"><div>
+    <span>Angular</span><span>React</span><span>JavaScript</span><span>Node.js</span><span>Postman</span><span>Regression testing</span><span>Cypress</span><span>MySQL</span>
+    <span>Angular</span><span>React</span><span>JavaScript</span><span>Node.js</span><span>Postman</span><span>Regression testing</span><span>Cypress</span><span>MySQL</span>
+  </div></div>
+
+  <section id="about" class="wrap">
+    <h2 data-reveal><small>About me</small>Developer precision,<br />tester's mindset.</h2>
+    <div class="about">
+      <div class="box big" data-reveal>I don't just build features — I validate them. I think about edge cases, performance and failure modes before they ever reach users, from government portals to enterprise apps.</div>
+      <div class="box stat" data-reveal><b>3+</b><span>years shipping production web apps</span></div>
+    </div>
+  </section>
+
+  <section id="skills" class="wrap">
+    <h2 data-reveal><small>Skills</small>What I work with</h2>
+    <div class="skills">
+      <div class="box" data-reveal><h3><i style="background:var(--blue)"></i>Frontend</h3><ul><li>Angular</li><li>AngularJS</li><li>React</li><li>JavaScript ES6+</li><li>HTML5</li><li>CSS3</li><li>Responsive</li></ul></div>
+      <div class="box" data-reveal><h3><i style="background:var(--pink)"></i>Testing</h3><ul><li>Functional</li><li>Regression</li><li>Integration</li><li>API / Postman</li><li>Performance</li><li>Cypress</li><li>Bug tracking</li></ul></div>
+      <div class="box" data-reveal><h3><i style="background:var(--green)"></i>Backend & tools</h3><ul><li>Node.js</li><li>REST APIs</li><li>MySQL</li><li>MongoDB</li><li>Git</li><li>GitHub</li><li>CI/CD</li></ul></div>
+    </div>
+  </section>
+
+  <section id="experience" class="wrap">
+    <h2 data-reveal><small>Experience</small>Where I've worked</h2>
+    <div class="jobs">
+      <article class="box job" data-reveal>
+        <div><span class="when">Mar 2024 — Now</span><h3>Software Developer & QA Engineer</h3><div class="org">Vivasvat Revolutions · Remote</div></div>
+        <ul>
+          <li>Built React and AngularJS components that work across browsers and screen sizes.</li>
+          <li>Validated Node.js REST APIs in Postman for correctness, speed and error handling.</li>
+          <li>Ran functional, regression and integration tests — and was the final quality gate before every release.</li>
+        </ul>
+      </article>
+      <article class="box job" data-reveal>
+        <div><span class="when">Oct 2023 — Mar 2024</span><h3>Software Developer Intern</h3><div class="org">J&K e-Governance Agency · Srinagar</div><a class="ext" href="https://917df935.jktourism-66i.pages.dev" target="_blank" rel="noopener">Visit the tourism portal ↗</a></div>
+        <ul>
+          <li>Built responsive interfaces for the J&K tourism government portal in React.</li>
+          <li>Implemented secure REST APIs with Node.js and MySQL.</li>
+          <li>Refactored code across the stack to improve speed and stability.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section id="education" class="wrap">
+    <h2 data-reveal><small>Education</small>Learning & credentials</h2>
+    <div class="edu">
+      <div class="box" data-reveal><span class="yr">2019 — 2024</span><h3>M.Sc. Information Technology</h3><p>University of Kashmir · Project on cloud security with the ElGamal cryptosystem.</p></div>
+      <div class="box" data-reveal><span class="yr">Sep 2022</span><h3>Cisco Certified Network Associate</h3><p>CCNA 200-301 · PayNet Labs · Networking, security and automation.</p></div>
+    </div>
+  </section>
+
+  <section id="contact" class="wrap">
+    <div class="contact" data-reveal>
+      <h2>Got a project? <mark>Let's talk.</mark></h2>
+      <p>A pixel-perfect frontend, solid QA coverage, or both — I'm ready when you are.</p>
+      <div class="cta"><a class="btn btn-y" href="mailto:Nabimehak47@gmail.com">Nabimehak47@gmail.com</a><a class="btn btn-w" href="tel:+919541296620">+91 95412 96620</a></div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap"><span>© Mehak Jan</span><span>Made with care in Srinagar</span></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/motion@13/dist/motion.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  if (!window.Motion || matchMedia('(prefers-reduced-motion: reduce)').matches) { root.classList.remove('m'); return; }
+  var animate = Motion.animate, inView = Motion.inView, stagger = Motion.stagger;
+  // bouncy, playful springs to match the style
+  animate('.hero [data-reveal]', { opacity: [0, 1], y: [40, 0], rotate: [-2, 0] }, { type: 'spring', bounce: 0.45, duration: 0.9, delay: stagger(0.08) });
+  document.querySelectorAll('section [data-reveal]').forEach(function (el) {
+    inView(el, function () { animate(el, { opacity: [0, 1], y: [40, 0], scale: [0.96, 1] }, { type: 'spring', bounce: 0.35, duration: 0.8 }); }, { amount: 0.2 });
+  });
+  // the ID card gently follows the pointer
+  var card = document.querySelector('[data-float]');
+  if (card && matchMedia('(pointer: fine)').matches) {
+    window.addEventListener('pointermove', function (e) {
+      var x = (e.clientX / innerWidth - 0.5) * 10, y = (e.clientY / innerHeight - 0.5) * 10;
+      animate(card, { rotateY: x, rotateX: -y }, { duration: 0.5 });
+    });
+  }
+})();
+</script>
+</body>
+</html>
