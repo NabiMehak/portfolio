@@ -441,6 +441,39 @@
       .hero-stats { gap:1.5rem; }
       .hstat { padding:0 1.5rem 0 0; }
     }
+
+    /* ══ MOTION LAYER ══ */
+    html.lenis, html.lenis body { height:auto; }
+    .lenis.lenis-smooth { scroll-behavior:auto !important; }
+    #scroll-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:10000; transform-origin:left; transform:scaleX(0);
+      background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3)); box-shadow:0 0 12px rgba(192,132,252,.6); pointer-events:none; }
+    canvas#c { width:100%; height:100%; }
+    canvas#gl { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+    .hero-left-col, .hero-right-col { will-change:transform; }
+
+    /* hero name: letters you can play with */
+    .hn-c { display:inline-block; transition:color .25s, text-shadow .25s, translate .35s cubic-bezier(.3,1.6,.5,1); transform-origin:50% 100%; }
+    .hn-c:hover { color:var(--accent); text-shadow:0 0 30px rgba(192,132,252,.7); translate:0 -10px; }
+    .hn-sp { display:inline-block; width:.28em; }
+    .m-on h1.hero-name, .m-on .name-line2 { animation:none; }
+    .m-on .name-line2 { animation:shimmer 4s linear infinite; }
+    .m-on .hero-left-col > :not(h1) { animation:none; opacity:0; }
+
+    /* section titles */
+    .st-w { display:inline-block; overflow:hidden; vertical-align:top; padding-bottom:.08em; }
+    .st-c { display:inline-block; }
+
+    /* giant outlined words drifting behind each section */
+    section[id]:not(#hero) { isolation:isolate; overflow-x:clip; }
+    .bg-word { position:absolute; top:1.5rem; left:0; z-index:-1; pointer-events:none; white-space:nowrap; user-select:none;
+      font-size:clamp(5rem,17vw,15rem); font-weight:900; letter-spacing:-.05em; line-height:1;
+      color:transparent; -webkit-text-stroke:1px rgba(192,132,252,.09); }
+
+    /* 3D tilt + light glare on cards */
+    .tilt { will-change:rotate; }
+    .glare { position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:0; transition:opacity .3s; z-index:2;
+      background:radial-gradient(420px circle at var(--gx,50%) var(--gy,50%), rgba(192,132,252,.16), rgba(244,114,182,.06) 40%, transparent 65%); }
+    .tilt:hover .glare { opacity:1; }
   </style>
 </head>
 <body>
@@ -950,6 +983,262 @@ function sendMail(e){
   const s=document.getElementById('fs').value||'Portfolio Inquiry', m=document.getElementById('fm').value;
   window.location.href=`mailto:Nabimehak47@gmail.com?subject=${encodeURIComponent(s+' – from '+n)}&body=${encodeURIComponent(m+'\n\nFrom: '+n+'\nEmail: '+em)}`;
 }
+</script>
+<div id="scroll-progress" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@13/dist/motion.js"></script>
+<script>
+/* ══ MOTION LAYER ══
+   Everything below only adds animation on top of the page above.
+   If a library fails to load, or the visitor prefers reduced motion, the page stays as it is. */
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = matchMedia('(pointer: fine)').matches;
+  var hero = document.getElementById('hero');
+
+  /* ── 3D PARTICLE PLANET (Three.js) ── */
+  var gl = { scatter: 0 };
+  if (window.THREE) (function () {
+    var T = THREE, mobile = innerWidth < 900;
+    var canvas = document.createElement('canvas'); canvas.id = 'gl';
+    hero.insertBefore(canvas, hero.firstChild.nextSibling);
+    var renderer;
+    try { renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false }); } catch (e) { canvas.remove(); return; }
+    var pr = Math.min(devicePixelRatio, 2);
+    renderer.setPixelRatio(pr);
+    var scene = new T.Scene(), camera = new T.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.z = 7;
+
+    var N = mobile ? 3500 : 8000;
+    var pos = new Float32Array(N * 3), col = new Float32Array(N * 3), rnd = new Float32Array(N);
+    var palette = [new T.Color('#c084fc'), new T.Color('#f472b6'), new T.Color('#60a5fa'), new T.Color('#f8f0ff')];
+    var golden = Math.PI * (3 - Math.sqrt(5));
+    for (var i = 0; i < N; i++) {
+      var x, y, z;
+      if (i < N * 0.68) { // sphere surface, evenly spread, slightly fuzzy
+        var k = i / (N * 0.68), yy = 1 - 2 * k, r = Math.sqrt(1 - yy * yy), th = golden * i, R = 1.55 + (Math.random() - 0.5) * 0.12;
+        x = Math.cos(th) * r * R; y = yy * R; z = Math.sin(th) * r * R;
+      } else { // tilted ring around it
+        var a = Math.random() * Math.PI * 2, rr = 2.2 + Math.pow(Math.random(), 1.6) * 1.1;
+        x = Math.cos(a) * rr; y = (Math.random() - 0.5) * 0.08; z = Math.sin(a) * rr;
+        var tilt = 0.42, cy = y * Math.cos(tilt) - z * Math.sin(tilt), cz = y * Math.sin(tilt) + z * Math.cos(tilt); y = cy; z = cz;
+      }
+      pos.set([x, y, z], i * 3);
+      var c = palette[Math.random() < 0.08 ? 3 : Math.floor(Math.random() * 3)];
+      col.set([c.r, c.g, c.b], i * 3);
+      rnd[i] = Math.random();
+    }
+    var geo = new T.BufferGeometry();
+    geo.setAttribute('position', new T.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new T.BufferAttribute(col, 3));
+    geo.setAttribute('aRand', new T.BufferAttribute(rnd, 1));
+    var mat = new T.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uScatter: { value: 0 }, uSize: { value: mobile ? 46 : 58 }, uPR: { value: pr }, uAlpha: { value: mobile ? 0.35 : 0.9 }, uMouse: { value: new T.Vector3(99, 99, 0) } },
+      vertexShader: [
+        'uniform float uTime, uScatter, uSize, uPR; uniform vec3 uMouse;',
+        'attribute vec3 color; attribute float aRand; varying vec3 vColor; varying float vA;',
+        'void main(){',
+        '  vec3 p = position;',
+        '  p += normalize(p) * sin(uTime*0.9 + p.y*2.4 + aRand*6.283) * 0.07;',
+        '  p *= 1.0 + uScatter * (1.2 + aRand*3.5);',
+        '  vec4 world = modelMatrix * vec4(p,1.0);',
+        '  vec3 d = world.xyz - uMouse; float f = smoothstep(1.2, 0.0, length(d.xy));',
+        '  world.xyz += normalize(d + vec3(0.0001)) * f * 0.55;',
+        '  vec4 mv = viewMatrix * world;',
+        '  gl_Position = projectionMatrix * mv;',
+        '  gl_PointSize = uSize * uPR * (0.35 + aRand*0.9) / -mv.z;',
+        '  vColor = color; vA = (0.35 + 0.65*aRand) * (1.0 - uScatter*0.85) + f*0.4;',
+        '}'].join('\n'),
+      fragmentShader: [
+        'uniform float uAlpha; varying vec3 vColor; varying float vA;',
+        'void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.05, d); gl_FragColor = vec4(vColor, a * vA * uAlpha); }'].join('\n')
+    });
+    var planet = new T.Points(geo, mat), group = new T.Group();
+    group.add(planet); scene.add(group);
+    group.rotation.z = 0.25;
+
+    // place the planet behind the profile picture (desktop) or top-centre (mobile)
+    var orb = document.querySelector('.profile-orb');
+    function place() {
+      var w = hero.clientWidth, h = hero.clientHeight;
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+      camera.updateMatrixWorld();
+      var hr = hero.getBoundingClientRect(), target = new T.Vector3(1.0, 1.7, 0);
+      if (orb && orb.offsetParent) {
+        var r = orb.getBoundingClientRect();
+        var nx = ((r.left + r.width / 2 - hr.left) / w) * 2 - 1, ny = -(((r.top + r.height / 2 - hr.top) / h) * 2 - 1);
+        target = new T.Vector3(nx, ny, 0.5).unproject(camera).sub(camera.position).normalize();
+        target = camera.position.clone().add(target.multiplyScalar(-camera.position.z / target.z));
+      }
+      group.position.copy(target);
+      group.scale.setScalar(mobile ? 0.8 : 0.72 * Math.min(1, Math.max(0.8, w / 1440)));
+    }
+    place();
+    var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(place, 150); });
+
+    var mouse = { x: 0, y: 0 }, mWorld = new T.Vector3(99, 99, 0);
+    hero.addEventListener('pointermove', function (e) {
+      var r = hero.getBoundingClientRect();
+      mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1; mouse.y = -(((e.clientY - r.top) / r.height) * 2 - 1);
+      var v = new T.Vector3(mouse.x, mouse.y, 0.5).unproject(camera).sub(camera.position).normalize();
+      mWorld.copy(camera.position).add(v.multiplyScalar(-camera.position.z / v.z));
+    });
+    hero.addEventListener('pointerleave', function () { mWorld.set(99, 99, 0); });
+
+    var visible = true;
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(hero);
+    var clock = new T.Clock(), rx = 0, ry = 0;
+    (function frame() {
+      requestAnimationFrame(frame);
+      if (!visible) return;
+      var t = clock.getElapsedTime();
+      if (!reduce) {
+        mat.uniforms.uTime.value = t;
+        planet.rotation.y = t * 0.12;
+        rx += (mouse.y * 0.25 - rx) * 0.04; ry += (mouse.x * 0.35 - ry) * 0.04;
+        group.rotation.x = rx; group.rotation.y = ry;
+        mat.uniforms.uMouse.value.lerp(mWorld, 0.12);
+      }
+      mat.uniforms.uScatter.value += (gl.scatter - mat.uniforms.uScatter.value) * 0.1;
+      renderer.render(scene, camera);
+    })();
+  })();
+
+  if (reduce || !window.Motion) return;
+  document.documentElement.classList.add('m-on');
+  var animate = Motion.animate, scroll = Motion.scroll, inView = Motion.inView, stagger = Motion.stagger;
+  var out = [0.16, 1, 0.3, 1];
+
+  /* ── SMOOTH SCROLL ── */
+  if (window.Lenis) {
+    document.documentElement.style.scrollBehavior = 'auto';
+    var lenis = new Lenis({ lerp: 0.1, anchors: { offset: -70 } });
+    (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0);
+  }
+
+  /* ── SCROLL PROGRESS BAR ── */
+  scroll(animate('#scroll-progress', { scaleX: [0, 1] }, { ease: 'linear' }));
+
+  /* ── TEXT: hero name flips in letter by letter ── */
+  var line1 = document.querySelector('.name-line1');
+  var name = line1.textContent;
+  line1.setAttribute('aria-label', name);
+  line1.innerHTML = name.split('').map(function (ch) { return ch === ' ' ? '<span class="hn-sp" aria-hidden="true"> </span>' : '<span class="hn-c" aria-hidden="true">' + ch + '</span>'; }).join('');
+  var letters = line1.querySelectorAll('.hn-c');
+  line1.parentNode.style.perspective = '800px';
+  animate(letters, { opacity: [0, 1], rotateX: [-95, 0], y: [40, 0] }, { duration: 0.9, delay: stagger(0.06, { startDelay: 0.2 }), ease: out })
+    .then(function () { letters.forEach(function (l) { l.style.transform = ''; }); });
+
+  /* ── TEXT: "Dev + QA Engineer" decodes from random symbols ── */
+  function scramble(el, delay) {
+    var final = el.textContent, glyphs = '!<>-_\\/[]{}=+*^?#01', frame = 0;
+    var q = final.split('').map(function (ch) { var s = Math.floor(Math.random() * 18); return { ch: ch, s: s, e: s + 10 + Math.floor(Math.random() * 22) }; });
+    el.setAttribute('aria-label', final);
+    setTimeout(function step() {
+      var outStr = '', done = 0;
+      q.forEach(function (o) {
+        if (frame >= o.e || o.ch === ' ') { outStr += o.ch; done++; }
+        else if (frame >= o.s) outStr += glyphs[Math.floor(Math.random() * glyphs.length)];
+        else outStr += ' ';
+      });
+      el.textContent = outStr; frame++;
+      if (done < q.length) requestAnimationFrame(step); else el.textContent = final;
+    }, delay || 0);
+  }
+  scramble(document.querySelector('.name-line2'), 700);
+
+  /* ── HERO: rest of the intro rises in, then parallax on scroll ── */
+  animate('.hero-left-col > :not(h1)', { opacity: [0, 1], y: [24, 0] }, { duration: 0.8, delay: stagger(0.1, { startDelay: 0.9 }), ease: out });
+  animate('.hero-right-col', { opacity: [0, 1], scale: [0.92, 1] }, { duration: 1.2, delay: 0.6, ease: out });
+  var heroOpts = { target: hero, offset: ['start start', 'end start'] };
+  scroll(animate('.hero-left-col', { y: [0, -140], opacity: [1, 0] }, { ease: 'linear' }), heroOpts);
+  scroll(animate('.hero-right-col', { y: [0, 90] }, { ease: 'linear' }), heroOpts);
+  scroll(function (p) { gl.scatter = p * 1.1; }, heroOpts);
+
+  /* ── SCROLL: giant outlined words slide behind each section ── */
+  var words = { about: 'ABOUT ME', skills: 'SKILLS', experience: 'EXPERIENCE', education: 'EDUCATION', contact: "LET'S TALK" };
+  Object.keys(words).forEach(function (id, n) {
+    var sec = document.getElementById(id); if (!sec) return;
+    var w = document.createElement('div'); w.className = 'bg-word'; w.setAttribute('aria-hidden', 'true');
+    w.textContent = (words[id] + ' ✦ ').repeat(3);
+    sec.insertBefore(w, sec.firstChild);
+    var dir = n % 2 ? 1 : -1;
+    scroll(animate(w, { x: dir > 0 ? ['-30%', '0%'] : ['0%', '-30%'] }, { ease: 'linear' }), { target: sec, offset: ['start end', 'end start'] });
+  });
+
+  /* ── TEXT: section titles rise in character by character ── */
+  document.querySelectorAll('h2.sec-title').forEach(function (h) {
+    var text = h.textContent.trim();
+    h.setAttribute('aria-label', text);
+    h.innerHTML = text.split(' ').map(function (w) {
+      return '<span class="st-w" aria-hidden="true">' + w.split('').map(function (c) { return '<span class="st-c">' + c + '</span>'; }).join('') + '</span>';
+    }).join(' ');
+    var cs = h.querySelectorAll('.st-c');
+    cs.forEach(function (c) { c.style.opacity = 0; });
+    inView(h, function () {
+      animate(cs, { opacity: [0, 1], y: ['100%', '0%'], rotate: [12, 0], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 0.7, delay: stagger(0.025), ease: out });
+    }, { amount: 0.5 });
+    var eye = h.parentNode.querySelector('.sec-eye');
+    if (eye) inView(eye, function () { scramble(eye); }, { amount: 0.5 });
+    var line = h.parentNode.querySelector('.sec-line');
+    if (line) { line.style.transformOrigin = 'left'; inView(line, function () { animate(line, { scaleX: [0, 1] }, { duration: 1, delay: 0.3, ease: out }); }); }
+  });
+
+  /* ── SCROLL: tools cloud pops in one by one ── */
+  var tags = document.querySelectorAll('.tag-cloud > *');
+  if (tags.length) {
+    tags.forEach(function (t) { t.style.opacity = 0; });
+    inView('.tag-cloud', function () { animate(tags, { opacity: [0, 1], scale: [0.6, 1] }, { type: 'spring', bounce: 0.45, duration: 0.6, delay: stagger(0.04) }); }, { amount: 0.3 });
+  }
+
+  if (!fine) return;
+
+  /* ── HOVER: cards tilt in 3D with a moving light ── */
+  document.querySelectorAll('.acard, .info-card, .exp-card, .edu-card, .cert-card, .form-box').forEach(function (card) {
+    card.classList.add('tilt');
+    if (getComputedStyle(card).position === 'static') card.style.position = 'relative';
+    card.parentNode.style.perspective = '1000px';
+    var g = document.createElement('span'); g.className = 'glare'; card.appendChild(g);
+    var max = card.classList.contains('exp-card') || card.classList.contains('form-box') ? 4 : 9;
+    var cur = { x: 0, y: 0 }, tgt = { x: 0, y: 0 }, running = false;
+    function tick() {
+      cur.x += (tgt.x - cur.x) * 0.15; cur.y += (tgt.y - cur.y) * 0.15;
+      var ang = Math.sqrt(cur.x * cur.x + cur.y * cur.y);
+      card.style.rotate = ang < 0.01 ? '' : (cur.y).toFixed(3) + ' ' + (-cur.x).toFixed(3) + ' 0 ' + (ang * max).toFixed(2) + 'deg';
+      if (Math.abs(tgt.x - cur.x) + Math.abs(tgt.y - cur.y) > 0.002) requestAnimationFrame(tick); else running = false;
+    }
+    card.addEventListener('pointermove', function (e) {
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      tgt.x = px * 2 - 1; tgt.y = -(py * 2 - 1);
+      card.style.setProperty('--gx', px * 100 + '%'); card.style.setProperty('--gy', py * 100 + '%');
+      if (!running) { running = true; tick(); }
+    });
+    card.addEventListener('pointerleave', function () { tgt.x = 0; tgt.y = 0; if (!running) { running = true; tick(); } });
+  });
+
+  /* ── HOVER: buttons are pulled toward the cursor ── */
+  document.querySelectorAll('.gbtn, .obtn, .nav-cta, .sbtn').forEach(function (b) {
+    b.addEventListener('pointermove', function (e) {
+      var r = b.getBoundingClientRect();
+      b.style.translate = ((e.clientX - r.left - r.width / 2) * 0.3).toFixed(1) + 'px ' + ((e.clientY - r.top - r.height / 2) * 0.4).toFixed(1) + 'px';
+    });
+    b.addEventListener('pointerleave', function () {
+      var m = (b.style.translate || '0px 0px').split(' '), x0 = parseFloat(m[0]) || 0, y0 = parseFloat(m[1]) || 0;
+      animate(1, 0, { type: 'spring', stiffness: 260, damping: 11, onUpdate: function (v) { b.style.translate = (x0 * v).toFixed(1) + 'px ' + (y0 * v).toFixed(1) + 'px'; } });
+    });
+  });
+
+  /* ── HOVER: profile picture follows the mouse a little ── */
+  var orbEl = document.querySelector('.profile-orb');
+  if (orbEl) hero.addEventListener('pointermove', function (e) {
+    var x = (e.clientX / innerWidth - 0.5) * 24, y = (e.clientY / innerHeight - 0.5) * 24;
+    orbEl.style.translate = x.toFixed(1) + 'px ' + y.toFixed(1) + 'px';
+  });
+})();
 </script>
 </body>
 </html>
