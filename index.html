@@ -1126,7 +1126,10 @@ function sendMail(e){
   var line1 = document.querySelector('.name-line1');
   var name = line1.textContent;
   line1.setAttribute('aria-label', name);
-  line1.innerHTML = name.split('').map(function (ch) { return ch === ' ' ? '<span class="hn-sp" aria-hidden="true"> </span>' : '<span class="hn-c" aria-hidden="true">' + ch + '</span>'; }).join('');
+  // keep each word together so the name never breaks mid-word on small screens
+  line1.innerHTML = name.split(' ').map(function (word) {
+    return '<span style="display:inline-block;white-space:nowrap" aria-hidden="true">' + word.split('').map(function (ch) { return '<span class="hn-c">' + ch + '</span>'; }).join('') + '</span>';
+  }).join('<span class="hn-sp" aria-hidden="true"> </span>');
   var letters = line1.querySelectorAll('.hn-c');
   line1.parentNode.style.perspective = '800px';
   animate(letters, { opacity: [0, 1], rotateX: [-95, 0], y: [40, 0] }, { duration: 0.9, delay: stagger(0.06, { startDelay: 0.2 }), ease: out })
